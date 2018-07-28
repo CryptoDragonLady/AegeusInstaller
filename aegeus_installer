@@ -515,7 +515,7 @@ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
  echo -e "${BLUE}================================================================${NC}"
 
 #PS3='Please enter your choice: '
-options=("${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}" "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}" "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}")
+options=("Install full Masternode" "Install CLI Staking Wallet Only" "Quit and get me out of here")
 read -rp "Please select your choice" options
 select opt in "${options[@]}"
 do
