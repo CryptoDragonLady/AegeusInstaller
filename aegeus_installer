@@ -494,6 +494,8 @@ function setup_node() {
 
 function mainmenu() {
 clear
+options=("${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}" "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}" "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}")
+
 echo -e "	${GREEN}	Welcome to the linux installer for ...${BLUE}" 
 echo -e "      _/_/                                                      "
 echo -e "   _/    _/    _/_/      _/_/_/    _/_/    _/    _/    _/_/_/   "
@@ -507,13 +509,12 @@ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
  echo -e "${BLUE}================================================================${NC}"
  echo -e "${WHITE}Main Menu"
  echo -e "${BLUE}===================${WHITE}Here are your options${BLUE}========================${NC}"
- echo -e "${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}"
- echo -e "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}"
- echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
- echo -e "${BLUE}================================================================${WHITE}"
+# echo -e "${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}"
+# echo -e "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}"
+# echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
 
 #PS3='Please enter your choice: '
-#options=("1" "2" "3")
+options=("${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}" "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}" "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}")
 read -rp "Please select your choice" options
 select opt in "${options[@]}"
 do
