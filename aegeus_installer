@@ -512,20 +512,21 @@ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
  echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
  echo -e "${BLUE}================================================================${WHITE}"
 
-PS3='Please enter your choice: '
-options=("1" "2" "3")
+#PS3='Please enter your choice: '
+#options=("1" "2" "3")
+read -rp "Please select your choice" options
 select opt in "${options[@]}"
 do
     case $opt in
-        "Option 1")
+        "1")
             echo "Lets do a masternode!"
 	doamasternode
             ;;
-        "Option 2")
+        "2")
             echo "Staking Wallet only Please..."
 	justwalletplz
             ;;
-        "Option 3")
+        "3")
             echo "Returning you to the shell"
 	break
 	exit
