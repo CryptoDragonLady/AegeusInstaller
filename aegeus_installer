@@ -509,9 +509,10 @@ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
  echo -e "${BLUE}================================================================${NC}"
  echo -e "${WHITE}Main Menu"
  echo -e "${BLUE}===================${WHITE}Here are your options${BLUE}========================${NC}"
-# echo -e "${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}"
-# echo -e "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}"
-# echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
+ echo -e "${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}"
+ echo -e "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}"
+ echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
+ echo -e "${BLUE}================================================================${NC}"
 
 #PS3='Please enter your choice: '
 options=("${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}" "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}" "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}")
