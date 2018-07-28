@@ -82,9 +82,9 @@ if [[ $FREEMEM -lt 3096 ]]; then
 		cp /etc/fstab /etc/fstab.bak
 		echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 	else
-		echo "Got ${WHITE}$SWAPS${GREEN} swap"
+		echo -e "Got ${WHITE} $SWAPS ${GREEN} swap"
 		if [[ $SWAPS -lt 2048 ]]; then
-			echo "${YELLOW}But thats less than what we want, so increasing swap to correct size to allow compile to succeed"
+			echo -e "${YELLOW} But thats less than what we want, so increasing swap to correct size to allow compile to succeed"
 			ADDSWAPS=$((2048 - $SWAPS))
 			fallocate -l $ADDSWAPS /swapfile2
 			chmod 600 /swapfile2
@@ -93,10 +93,10 @@ if [[ $FREEMEM -lt 3096 ]]; then
 			cp /etc/fstab /etc/fstab.bak
 			echo '/swapfile2 none swap sw 0 0' | sudo tee -a /etc/fstab
 		fi 
-		echo "${WHITE}And thats enough swap that compile should work"
+		echo -e "${WHITE} And thats enough swap that compile should work"
 	fi
 	else
-	echo "Enough free ram availabe for compile to succeed, not checking swap"
+	echo -e "Enough free ram availabe for compile to succeed, not checking swap"
 fi 
 }
 
@@ -514,24 +514,26 @@ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
  echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
  echo -e "${BLUE}================================================================${NC}"
 
+
 #PS3='Please enter your choice: '
-options=("Install full Masternode" "Install CLI Staking Wallet Only" "Quit and get me out of here")
-read -rp "Please select your choice" options
-select opt in "${options[@]}"
-do
+#options=("Install full Masternode" "Install CLI Staking Wallet Only" "Quit and get me out of here")
+read -rp "Please select your choice: " opt
+shouldloop=true;
+while $shouldloop; do
     case $opt in
         "1")
-            echo "Lets do a masternode!"
-	doamasternode
+            echo "Lets do a masternode!";
+        doamasternode
             ;;
         "2")
-            echo "Staking Wallet only Please..."
-	justwalletplz
+            echo "Staking Wallet only Please...";
+        justwalletplz
             ;;
         "3")
-            echo "Returning you to the shell"
-	break
-	exit
+            echo "Returning you to the shell";
+        shouldloop=false;
+        break
+        exit
             ;;
         *) echo "invalid option $REPLY";;
     esac
