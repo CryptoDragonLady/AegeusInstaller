@@ -143,7 +143,7 @@ if  [[ $CF -gt 4 ]]; then
         CL=4.5
 fi
 echo -e "${YELLOW} Compiling using $CF Cores with load $CL"
-make -j$CF -l$CL 2>&1
+make -j$CF -l$CL > /dev/null 2>&1
 
 if [[ -d $(eval echo $COIN_PATH)  ]]; then
 cp src/aegeusd $(eval echo $COIN_PATH)
