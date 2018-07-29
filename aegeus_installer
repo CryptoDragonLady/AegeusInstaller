@@ -70,9 +70,9 @@ function memorycheck() {
 
 echo -e "${GREEN}Checking Memory${NC}"
 FREEMEM=$(free -m |grep Mem |awk '{ print $4 }')
+SWAPS=$(free -m |grep Swap |awk '{ print $2 }')
 
 if [[ $FREEMEM -lt 3096 ]]; then 
-	SWAPS=$(free -m |grep Swap |awk '{ print $2 }')
 	if [[ $SWAPS -eq 0 ]]; then
 		echo -e "${GREEN}Adding swap${NC}"
 		fallocate -l 2G /swapfile
@@ -82,9 +82,9 @@ if [[ $FREEMEM -lt 3096 ]]; then
 		cp /etc/fstab /etc/fstab.bak
 		echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 	else
-		echo -e "Got ${WHITE} $SWAPS ${GREEN} swap"
+		echo -e "Got ${WHITE}$SWAPS${GREEN} swap"
 		if [[ $SWAPS -lt 2048 ]]; then
-			echo -e "${YELLOW} But thats less than what we want, so increasing swap to correct size to allow compile to succeed"
+			echo -e "${YELLOW}But thats less than what we want, so increasing swap to correct size to allow compile to succeed"
 			ADDSWAPS=$((2048 - $SWAPS))
 			fallocate -l $ADDSWAPS /swapfile2
 			chmod 600 /swapfile2
@@ -93,7 +93,7 @@ if [[ $FREEMEM -lt 3096 ]]; then
 			cp /etc/fstab /etc/fstab.bak
 			echo '/swapfile2 none swap sw 0 0' | sudo tee -a /etc/fstab
 		fi 
-		echo -e "${WHITE} And thats enough swap that compile should work"
+		echo -e "${WHITE}And thats enough swap that compile should work"
 	fi
 	else
 	echo -e "Enough free ram availabe for compile to succeed, not checking swap"
@@ -132,8 +132,18 @@ CF=$(eval expr $CORES - 1)
 if [[ $CF -eq 0 ]]; then
 CF='1'
 fi
-echo -e "${YELLOW} Compiling using $CF Cores"
-make -j$CF > /dev/null 2>&1
+FM=$(($(($FREEMEM + $SWAPS))/1024))
+if  [[ $CF -gt 4 ]]; then
+        #CL=$(($FM/$CF+$(($CF/2))+5))
+        CL=$(($CF/2+3))
+                if [[ $CL -gt 5 ]]; then
+                CL=5.2
+                fi
+        else 
+        CL=4.5
+fi
+echo -e "${YELLOW} Compiling using $CF Cores with load $CL"
+make -j$CF -l$CL 2>&1
 
 if [[ -d $(eval echo $COIN_PATH)  ]]; then
 cp src/aegeusd $(eval echo $COIN_PATH)
@@ -171,6 +181,7 @@ StartLimitInterval=120s
 StartLimitBurst=5
 [Install]
 WantedBy=multi-user.target
+
 EOF
 
   systemctl daemon-reload
@@ -189,12 +200,18 @@ EOF
 
 
 function create_config() {
-  echo -e "${GREEN}Generating Config${NC}"
+  echo -e "${GREEN}Generating Config at $CFFULLPATH ${NC}"
 
-  mkdir $(eval echo $CONFIGFOLDER) >/dev/null 2>&1
-  RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w32 | head -n1)
-  RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w32 | head -n1)
-  cat << EOF > $(eval echo $CFFULLPATH)
+if [[ ! -d $(eval echo $CONFIGFOLDER) ]]; then    
+echo -e "Making Config Folder"
+mkdir $(eval echo $CONFIGFOLDER)
+fi
+
+  RPCUSER=$(openssl rand -hex 11)
+  RPCPASSWORD=$(openssl rand -hex 20)
+
+  cat << EOF > $(eval echo $CONFIGFOLDER/$CONFIG_FILE)
+
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcport=$RPC_PORT
@@ -203,7 +220,10 @@ listen=1
 server=1
 daemon=1
 port=$COIN_PORT
+
 EOF
+
+echo -e "Done"
 }
 
 function create_key() {
@@ -255,6 +275,7 @@ addnode=149.28.205.234
 addnode=144.202.97.176
 addnode=149.28.193.111
 addnode=149.28.193.113
+
 #ADDNODES
 
 EOF
@@ -288,6 +309,7 @@ addnode=149.28.205.234
 addnode=144.202.97.176
 addnode=149.28.193.111
 addnode=149.28.193.113
+
 #ADDNODES
 
 EOF
@@ -482,15 +504,6 @@ echo -e "${RED} ░                                                             
 
 }
 
-function setup_node() {
-  get_ip
-  create_config
-  create_key
-  update_config
-  enable_firewall
-  important_information
-  configure_systemd
-}
 
 function mainmenu() {
 clear
@@ -513,27 +526,30 @@ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
  echo -e "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}"
  echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
  echo -e "${BLUE}================================================================${NC}"
+}
 
-
+function mainmenu2 {
 #PS3='Please enter your choice: '
 #options=("Install full Masternode" "Install CLI Staking Wallet Only" "Quit and get me out of here")
-read -rp "Please select your choice: " opt
 shouldloop=true;
 while $shouldloop; do
+mainmenu
+read -rp "Please select your choice: " opt
+
     case $opt in
         "1")
             echo "Lets do a masternode!";
-        doamasternode
+	doamasternode
             ;;
         "2")
             echo "Staking Wallet only Please...";
-        justwalletplz
+	justwalletplz
             ;;
         "3")
             echo "Returning you to the shell";
-        shouldloop=false;
-        break
-        exit
+	shouldloop=false;
+	break
+	exit
             ;;
         *) echo "invalid option $REPLY";;
     esac
@@ -554,6 +570,17 @@ setup_node
 
 }
 
+function setup_node() {
+  get_ip
+  create_config
+  create_key
+  update_config
+  enable_firewall
+  important_information
+  configure_systemd
+}
+
+
 function justwalletplz() {
 purgeOldInstallation
 checks
@@ -568,7 +595,8 @@ important_information_wallet
 
 
 ##### Main #####
-mainmenu
+mainmenu2
 
 
 # bash <(curl https://raw.githubusercontent.com/AegeusCoin/AegeusInstaller/master/aegeus_installer)
+
