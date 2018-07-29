@@ -96,7 +96,7 @@ if [[ $FREEMEM -lt 3096 ]]; then
 		echo -e "${WHITE}And thats enough swap that compile should work"
 	fi
 	else
-	echo -e "Enough free ram availabe for compile to succeed, not checking swap"
+	echo -e "Enough free ram available for compile to succeed, not checking swap"
 fi 
 }
 
