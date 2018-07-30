@@ -241,7 +241,7 @@ fi
 		echo -e "${WHITE}Please start your local wallet and go to"
 		echo -e "Tools -> Debug Console and type ${GREEN}masternode genkey${WHITE}"
 		echo -e "And please copy the string of letters and numberers"
-		read -e "and enter it here: " COINKEY
+		read -rp "and enter it here: " COINKEY
 		done
 	fi
 	
