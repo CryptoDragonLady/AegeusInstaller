@@ -9,8 +9,8 @@ COIN_PATH='/usr/local/bin/'
 COIN_GIT='https://github.com/AegeusCoin/aegeus.git'
 COIN_BACKUP='~/AegeusBackup'
 COIN_TGZ=''
-COIN_BOOTSTRAP_URL='https://gateway.ipfs.io/ipfs/QmajB3M2pSDNQdvmDsBV272MKcqn918g9YbcjqvwxrqFdD'
-COIN_BOOTSTRAP_HASH='QmajB3M2pSDNQdvmDsBV272MKcqn918g9YbcjqvwxrqFdD'
+COIN_BOOTSTRAP_URL='https://gateway.ipfs.io/ipfs/QmUBhH9R5VzrqeiTSia7Sc4HXQTvR9dWgzMDbf8Wi1XTfi11'
+COIN_BOOTSTRAP_HASH='QmUBhH9R5VzrqeiTSia7Sc4HXQTvR9dWgzMDbf8Wi1XTfi11'
 COIN_ZIP=$(echo $COIN_TGZ | awk -F'/' '{print $NF}')
 COIN_NAME='Aegeus'
 COIN_PORT=29328
@@ -428,6 +428,7 @@ else
  echo -e "${GREEN}Copied from previous config MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"
 fi
  echo -e "${BLUE}================================================================================================================================"
+pause
  echo -e "Whipped up by "
  logo
  echo -e "${YELLOW} for Aegeus (with some stuff borrowed from RealBitYoda.)" 
@@ -578,6 +579,7 @@ function setup_node() {
   enable_firewall
   important_information
   configure_systemd
+pause
 }
 
 
@@ -591,6 +593,7 @@ bootstrap
 create_config
 update_config_wallet
 important_information_wallet
+pause
 }
 
 
