@@ -428,7 +428,7 @@ else
  echo -e "${GREEN}Copied from previous config MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"
 fi
  echo -e "${BLUE}================================================================================================================================"
-pause
+read -rp "Press any key to continue" pause
  echo -e "Whipped up by "
  logo
  echo -e "${YELLOW} for Aegeus (with some stuff borrowed from RealBitYoda.)" 
@@ -579,7 +579,7 @@ function setup_node() {
   enable_firewall
   important_information
   configure_systemd
-pause
+read -rp "Press any key to continue" pause
 }
 
 
@@ -593,7 +593,7 @@ bootstrap
 create_config
 update_config_wallet
 important_information_wallet
-pause
+read -rp "Press any key to continue" pause
 }
 
 
