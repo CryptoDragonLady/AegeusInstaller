@@ -235,22 +235,17 @@ fi
 	if [[ ! $OLDKEY ]]; then 
 		echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
 		read -e COINKEY
-		if [[ -z "$COINKEY" ]]; then
-			$COIND_COMMAND -daemon -conf=$CFFULLPATH
-			sleep 30
-			if [ -z "$(ps axo cmd:100 | grep $COIN_DAEMON)" ]; then
-				echo -e "${RED}$COIN_NAME server couldn not start. Check /var/log/syslog for errors.{$NC}"
-				exit 1
-			fi
-			COINKEY=$($COIN_CLI_COMMAND masternode genkey)
-			if [ "$?" -gt "0" ]; then
-				
-				echo -e "${RED}Wallet not fully loaded. Let us wait 30 seconds and try again to generate the GEN Key${NC}"
-				sleep 30
-				COINKEY=$($COIN_CLI_COMMAND masternode genkey)
-			  fi
-			  $COIN_CLI_COMMAND stop
-		  fi
+		while [[ -z "$COINKEY" ]]; do
+		echo -e " "
+		echo -e "============================================================"
+		echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
+		echo -e "${WHITE} to obtain a key, please start your local wallet, go to"
+		echo -e "Tools -> Debug Console and type ${GREEN}masternode genkey ${WHITE} and paste the result, betwene the quotation marks"
+		echo -e "without including the quotation marks, here: "
+		read -e COINKEY
+
+
+		done
 	fi
 	
 #clear
