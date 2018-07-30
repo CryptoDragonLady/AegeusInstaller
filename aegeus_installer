@@ -240,9 +240,8 @@ fi
 		echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
 		echo -e "${WHITE}Please start your local wallet and go to"
 		echo -e "Tools -> Debug Console and type ${GREEN}masternode genkey${WHITE}"
-		echo -e "And please copy the string of letters and numberers inbetween the quotation marks"
-		echo -e "without copying the quotation marks, and enter it here: "
-		read -e COINKEY
+		echo -e "And please copy the string of letters and numberers"
+		read -e "and enter it here: " COINKEY
 		done
 	fi
 	
