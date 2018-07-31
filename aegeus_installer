@@ -83,7 +83,7 @@ if [[ $FREEMEM -lt 3096 ]]; then
 		echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 	else
 		echo -e "Got ${WHITE}$SWAPS${GREEN} swap"
-		if [[ $SWAPS -lt 2048 ]]; then
+		if [[ $SWAPS -lt 2046 ]]; then
 			echo -e "${YELLOW}But thats less than what we want, so increasing swap to correct size to allow compile to succeed"
 			ADDSWAPS=$((2048 - $SWAPS))
 			if [[ $ADDSWAPS -lt 1024 ]]; then 
