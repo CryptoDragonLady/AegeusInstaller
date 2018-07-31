@@ -588,6 +588,7 @@ read -rp "Please select your choice: " opt
 	echo -e ""
         read -rp "Jump to what function?: " jump;
         $jump
+	read -rp "press any key to continue" pause;
             ;;
         *) echo "invalid option $REPLY";;
     esac
