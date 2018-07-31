@@ -172,7 +172,8 @@ else
 echo -e "Stopping running daemon"
 $COIN_CLI_COMMAND stop > /dev/null 2>&1
 sleep 10
-killall -9 $DAEMONPID > /dev/null 2>&1
+kill -9 $DAEMONPID > /dev/null 2>&1
+kill -15 $DAEMONPID > /dev/null 2>&1
 fi
 
 
