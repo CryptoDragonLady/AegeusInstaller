@@ -22,7 +22,7 @@ STOPCMD=$(eval echo $COIN_CLI_COMMAND -conf=$CFFULLPATH -datadir=$CONFIGFOLDER s
 PFile=$(eval echo $CONFIGFOLDER/$COIN_NAME.pid)
 
 NODEIP=$(curl -s4 icanhazip.com)
-
+BLINK="\e[5m"
 WHITE="\033[0;316m"
 BLUE="\033[0;34m"
 YELLOW="\033[0;33m"
@@ -499,6 +499,22 @@ function bootstrap() {
   systemctl start Aegeus.service
 }
 
+function support() {
+
+ echo -e "${BLUE}================================================================================================================================${NC}"
+ echo -e "${BLUE} ${WHITE}$COIN_BOOTSTRAP_HASH"
+ echo -e "${BLUE}================================================================================================================================${NC}"
+  systemctl stop Aegeus.service
+  cd $CONFIGFOLDER
+  rm -rf blocks chainstate sporks banlist.dat peers.dat 2>/dev/null
+  echo -e "${CYAN}Downloading Bootstrap...${NC}"
+  wget -q $COIN_BOOTSTRAP_URL -O bootstrap.tar.gz
+  tar -zxvf bootstrap.tar.gz >/dev/null 2>&1
+  rm bootstrap.tar.gz
+  cd ~
+  systemctl start Aegeus.service
+}
+
 function logo() {
 
 echo -e "${RED}▓█████▄  ██▀███   ▄▄▄        ▄████  ▒█████   ███▄    █  ██▓    ▄▄▄      ▓█████▄▓██   ██▓"
@@ -571,7 +587,7 @@ read -rp "Please select your choice: " opt
 	echo -e ""
 	echo -e ""
         read -rp "Jump to what function?: " jump;
-        $jump;
+        $jump
             ;;
         *) echo "invalid option $REPLY";;
     esac
@@ -625,4 +641,5 @@ mainmenu2
 
 
 # bash <(curl https://raw.githubusercontent.com/AegeusCoin/AegeusInstaller/master/aegeus_installer)
+
 
