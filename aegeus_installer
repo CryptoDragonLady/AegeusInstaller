@@ -264,6 +264,12 @@ fi
 
   RPCUSER=$(openssl rand -hex 11)
   RPCPASSWORD=$(openssl rand -hex 20)
+  RPCPORT=$(netstat --listening -n |grep $RPC_PORT)
+if [[ ! -z RPCPORT ]]; then
+echo -e "Something is listening on the RPC Port: $RPC_PORT."
+RPC_PORT=$((eval echo $RPC_PORT + 10))
+echo -e "moving RPC port to $RPC_PORT"
+fi
 
   cat << EOF > $(eval echo $CONFIGFOLDER/$CONFIG_FILE)
 
@@ -450,7 +456,8 @@ if [ "$?" -gt "0" ];
     echo "apt -y install software-properties-common"
     echo "apt-add-repository -y ppa:bitcoin/bitcoin"
     echo "apt-get update"
-    echo "apt install -y make build-essential libtool software-properties-common autoconf libssl-dev libboost-dev libboost-chrono-dev libboost-filesystem-dev \
+
+echo "apt install -y make build-essential libtool software-properties-common autoconf libssl-dev libboost-dev libboost-chrono-dev libboost-filesystem-dev \
 libboost-program-options-dev libboost-system-dev libboost-test-dev libboost-thread-dev sudo automake git curl libdb4.8-dev \
 bsdmainutils libdb4.8++-dev libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev libdb5.3++ unzip libzmq5"
  exit 1
@@ -477,8 +484,8 @@ fi
  echo -e "${BLUE}================================================================================================================================"
 read -rp "Press any key to continue" pause
  echo -e "Whipped up by "
- logo
- echo -e "${YELLOW} for Aegeus (with some stuff borrowed from RealBitYoda.)" 
+logo
+ echo -e "for Aegeus with some stuff borrowed from RealBiYoda. " 
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${CYAN}Ensure Node is fully SYNCED with BLOCKCHAIN.${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
@@ -506,7 +513,7 @@ function important_information_wallet() {
  echo -e "${BLUE}================================================================================================================================"
  echo -e "Whipped up by "
  logo
- echo -e "${YELLOW} for Aegeus (with some stuff borrowed from RealBitYoda.)" 
+ echo -e "${YELLOW} for Aegeus with some stuff borrowed from RealBitYoda." 
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${CYAN}Ensure Node is fully SYNCED with BLOCKCHAIN.${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
@@ -544,32 +551,33 @@ last20=$(tail ~/.aegeus/debug.log -n20)
 mnstatus=$(/usr/local/bin/aegeus-cli masternode status)
 
  echo -e "${BLUE}================================================================================================================================${NC}"
- echo -e "${FgLtBlue}Aegeus ${Blink}${FgLtWhite}Support${Off} ${FgLtRed}Help ${Off}Screen"
+ echo -e "${FgLtBlue}Aegeus ${Blink}${FgLtWhite}Support${Off}${FgLtWhite}${BgLtBlue} ${FgLtRed}Help ${Off}${FgLtWhite}${BgLtBlue}Screen"
  echo -e "${BLUE}================================================================================================================================${NC}"
 echo -e  "                                                                                                          "
-echo -e  "  $getinfo                                                                                                        "
+echo -e  " Getinfo: $getinfo                                                                                                        "
 echo -e  "                                                                                                          "
-echo -e  "  $coldlook                                                                                               "
+echo -e  " Coldlook:  $coldlook                                                                                               "
 echo -e  "                                                                                                          "
-echo -e  "  $last20                                             "
+echo -e  " Last20debug: $last20                                             "
 echo -e  "                                                                                                          "
-echo -e  "  $mnstatus                                                                                                        "
+echo -e  " MNStatus:  $mnstatus                                                                                                        "
 
 
 }
 
 function logo() {
-
-echo -e "${RED}▓█████▄  ██▀███   ▄▄▄        ▄████  ▒█████   ███▄    █  ██▓    ▄▄▄      ▓█████▄▓██   ██▓"
-echo -e "${RED}▒██▀ ██▌▓██ ▒ ██▒▒████▄     ██▒ ▀█▒▒██▒  ██▒ ██ ▀█   █ ▓██▒   ▒████▄    ▒██▀ ██▌▒██  ██▒"
-echo -e "${RED}░██   █▌▓██ ░▄█ ▒▒██  ▀█▄  ▒██░▄▄▄░▒██░  ██▒▓██  ▀█ ██▒▒██░   ▒██  ▀█▄  ░██   █▌ ▒██ ██░"
-echo -e "${RED}░▓█▄   ▌▒██▀▀█▄  ░██▄▄▄▄██ ░▓█  ██▓▒██   ██░▓██▒  ▐▌██▒▒██░   ░██▄▄▄▄██ ░▓█▄   ▌ ░ ▐██▓░"
-echo -e "${RED}░▒████▓ ░██▓ ▒██▒ ▓█   ▓██▒░▒▓███▀▒░ ████▓▒░▒██░   ▓██░░██████▒▓█   ▓██▒░▒████▓  ░ ██▒▓░"
-echo -e "${RED} ▒▒▓  ▒ ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░ ░▒   ▒ ░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ░ ▒░▓  ░▒▒   ▓▒█░ ▒▒▓  ▒   ██▒▒▒ "
-echo -e "${RED} ░ ▒  ▒   ░▒ ░ ▒░  ▒   ▒▒ ░  ░   ░   ░ ▒ ▒░ ░ ░░   ░ ▒░░ ░ ▒  ░ ▒   ▒▒ ░ ░ ▒  ▒ ▓██ ░▒░ "
-echo -e "${RED} ░ ░  ░   ░░   ░   ░   ▒   ░ ░   ░ ░ ░ ░ ▒     ░   ░ ░   ░ ░    ░   ▒    ░ ░  ░ ▒ ▒ ░░  "
-echo -e "${RED}   ░       ░           ░  ░      ░     ░ ░           ░     ░  ░     ░  ░   ░    ░ ░     "
-echo -e "${RED} ░                                                                       ░      ░ ░     "
+ 
+ 
+echo -e "${FgLtRed}${Bold}▓█████▄  ██▀███   ▄▄▄        ▄████  ▒█████   ███▄    █  ██▓    ▄▄▄      ▓█████▄▓██   ██▓"
+echo -e "${FgLtRed}${Bold}▒██▀ ██▌▓██ ▒ ██▒▒████▄     ██▒ ▀█▒▒██▒  ██▒ ██ ▀█   █ ▓██▒   ▒████▄    ▒██▀ ██▌▒██  ██▒"
+echo -e "${FgLtRed}${Bold}░██   █▌▓██ ░▄█ ▒▒██  ▀█▄  ▒██░▄▄▄░▒██░  ██▒▓██  ▀█ ██▒▒██░   ▒██  ▀█▄  ░██   █▌ ▒██ ██░"
+echo -e "${FgLtRed}${Bold}░▓█▄   ▌▒██▀▀█▄  ░██▄▄▄▄██ ░▓█  ██▓▒██   ██░▓██▒  ▐▌██▒▒██░   ░██▄▄▄▄██ ░▓█▄   ▌ ░ ▐██▓░"
+echo -e "${FgLtRed}${Bold}░▒████▓ ░██▓ ▒██▒ ▓█   ▓██▒░▒▓███▀▒░ ████▓▒░▒██░   ▓██░░██████▒▓█   ▓██▒░▒████▓  ░ ██▒▓░"
+echo -e "${FgLtRed}${Bold} ▒▒▓  ▒ ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░ ░▒   ▒ ░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ░ ▒░▓  ░▒▒   ▓▒█░ ▒▒▓  ▒   ██▒▒▒ "
+echo -e "${FgLtRed}${Bold} ░ ▒  ▒   ░▒ ░ ▒░  ▒   ▒▒ ░  ░   ░   ░ ▒ ▒░ ░ ░░   ░ ▒░░ ░ ▒  ░ ▒   ▒▒ ░ ░ ▒  ▒ ▓██ ░▒░ "
+echo -e "${FgLtRed}${Bold} ░ ░  ░   ░░   ░   ░   ▒   ░ ░   ░ ░ ░ ░ ▒     ░   ░ ░   ░ ░    ░   ▒    ░ ░  ░ ▒ ▒ ░░  "
+echo -e "${FgLtRed}${Bold}   ░       ░           ░  ░      ░     ░ ░           ░     ░  ░     ░  ░   ░    ░ ░     "
+echo -e "${FgLtRed}${Bold} ░                                                                       ░      ░ ░     "
 
 }
 
@@ -577,23 +585,26 @@ echo -e "${RED} ░                                                             
 function mainmenu() {
 clear
 options=("${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}" "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}" "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}")
+echo -e "Welcome to the linux installer for ..."
+echo -e "  /${FgLtBlue}${Bold}██████${Off}                                                   "
+echo -e " /${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off}                                                  "
+echo -e "| ${FgLtBlue}${Bold}██${Off}  \ ${FgLtBlue}${Bold}██${Off}  /${FgLtBlue}${Bold}██████${Off}   /${FgLtBlue}${Bold}██████${Off}   /${FgLtBlue}${Bold}██████${Off}  /${FgLtBlue}${Bold}██${Off}   /${FgLtBlue}${Bold}██${Off}  /${FgLtBlue}${Bold}███████${Off}"
+echo -e "| ${FgLtBlue}${Bold}████████${Off} /${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off} /${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off} /${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off} /${FgLtBlue}${Bold}██${Off}_____/"
+echo -e "| ${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}████████${Off}| ${FgLtBlue}${Bold}██${Off}  \ ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}████████${Off}| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off}|  ${FgLtBlue}${Bold}██████${Off} "
+echo -e "| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}██${Off}_____/| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}██${Off}_____/| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██ ${Off}\____  ${FgLtBlue}${Bold}██${Off}"
+echo -e "| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off}|  ${FgLtBlue}${Bold}███████${Off}|  ${FgLtBlue}${Bold}███████${Off}|  ${FgLtBlue}${Bold}███████${Off}|  ${FgLtBlue}${Bold}██████${Off}/ /${FgLtBlue}${Bold}███████${Off}/"
+echo -e "|__/  |__/ \_______/ \____  ${FgLtBlue}${Bold}██${Off} \_______/ \______/ |_______/ "
+echo -e "                     /${FgLtBlue}${Bold}██${Off}  \ ${FgLtBlue}${Bold}██${Off}                              "
+echo -e "                    |  ${FgLtBlue}${Bold}██████${Off}/                              "
+echo -e "                     \______/                               "
 
-echo -e "	${GREEN}	Welcome to the linux installer for ...${BLUE}" 
-echo -e "      _/_/                                                      "
-echo -e "   _/    _/    _/_/      _/_/_/    _/_/    _/    _/    _/_/_/   "
-echo -e "  _/_/_/_/  _/_/_/_/  _/    _/  _/_/_/_/  _/    _/  _/_/        "
-echo -e " _/    _/  _/        _/    _/  _/        _/    _/      _/_/     "
-echo -e "_/    _/    _/_/_/    _/_/_/    _/_/_/    _/_/_/  _/_/_/        "
-echo -e "                         _/                                     "
-echo -e "                    _/_/                                        "
-echo -e ""
-echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
+echo -e "${RED} ${RED}Dragon${FgLtMagenta}Lady${FgLtGreen} Flexi-compile edit 2.0.0${NC}"
  echo -e "${BLUE}================================================================${NC}"
  echo -e "${WHITE}Main Menu"
  echo -e "${BLUE}===================${WHITE}Here are your options${BLUE}========================${NC}"
- echo -e "${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}"
- echo -e "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}"
- echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
+ echo -e "${GREEN}1:${NC}${FgLtYellow} Install full Masternode${NC}"
+ echo -e "${GREEN}2:${NC}${FgLtYellow} Install CLI Staking Wallet Only${NC}"
+ echo -e "${GREEN}3:${NC}${FgLtYellow} Quit and get me out of here${NC}"
  echo -e "${BLUE}================================================================${NC}"
 }
 
@@ -609,13 +620,13 @@ read -rp "Please select your choice: " opt
         "1")
             echo "Lets do a masternode!";
 	doamasternode
-	    echo -e "${Underline}Masternode Setup ${Blink}Complete${Off}!!!"
+	    echo -e "${Underline}Masternode Setup ${Blink}Complete${Off}${FgLtBlue}$!!!"
             read -rp "Press any key to return to main menu" pause
 	    ;;
         "2")
             echo "Staking Wallet only Please...";
 	justwalletplz
-	    echo -e "${Underline}Masternode Setup ${Blink}Complete${Off}!!!"
+	    echo -e "${Underline}Staking Wallet Setup ${Blink}Complete${Off}${FgLtBlue}!!!"
             read -rp "Press any key to return to main menu" pause
             ;;
         "3")
