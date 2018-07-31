@@ -561,6 +561,18 @@ read -rp "Please select your choice: " opt
 	break
 	exit
             ;;
+	 "jump")
+	echo -e "Where do you want to jump to?"
+	echo -e "Valid examples are"
+	echo -e "logo"
+	echo -e "important_information"
+	echo -e "configure_systemd"
+	echo -e "preflightchecks"
+	echo -e ""
+	echo -e ""
+        read -rp "Jump to what function?: " jump;
+        $jump;
+            ;;
         *) echo "invalid option $REPLY";;
     esac
 done
@@ -570,14 +582,18 @@ done
 function doamasternode() {
 
 clear
-purgeOldInstallation
-checks
-prepare_system
-memorycheck
+preflightchecks
 download_node
 bootstrap
 setup_node
 
+}
+
+function preflightchecks() {
+purgeOldInstallation
+checks
+prepare_system
+memorycheck
 }
 
 function setup_node() {
@@ -593,12 +609,10 @@ read -rp "Press any key to continue" pause
 
 
 function justwalletplz() {
-purgeOldInstallation
-checks
-prepare_system
-memorycheck
+preflightchecks
 download_node
 bootstrap
+get_ip
 create_config
 update_config_wallet
 important_information_wallet
