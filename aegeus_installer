@@ -541,26 +541,17 @@ function support() {
 getinfo=$(/usr/local/bin/aegeus-cli getinfo)
 coldlook=$(cat ~/.aegeus/debug.log |grep cold)
 last20=$(tail ~/.aegeus/debug.log -n20)
+mnstatus=$(/usr/local/bin/aegeus-cli masternode status)
+
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${FgLtBlue}Aegeus ${FgLtWhite}Support ${FgLtRed}Help ${Off}Screen"
  echo -e "${BLUE}================================================================================================================================${NC}"
 echo -e  "                                                                                                          "
-echo -e  "  $getinfo                                                                                                "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
+echo -e  "  $getinfo                                                                                                        "
 echo -e  "                                                                                                          "
 echo -e  "  $coldlook                                                                                               "
 echo -e  "                                                                                                          "
-echo -e  "                                                             $last20                                             "
+echo -e  "  $last20                                             "
 echo -e  "                                                                                                          "
 echo -e  "                                                                                                          "
 
