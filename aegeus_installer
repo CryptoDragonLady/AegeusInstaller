@@ -86,6 +86,9 @@ if [[ $FREEMEM -lt 3096 ]]; then
 		if [[ $SWAPS -lt 2048 ]]; then
 			echo -e "${YELLOW}But thats less than what we want, so increasing swap to correct size to allow compile to succeed"
 			ADDSWAPS=$((2048 - $SWAPS))
+			if [[ $ADDSWAPS -lt 1024 ]]; then 
+				ADDSWAPS=1024
+			fi
 			fallocate -l $ADDSWAPS /swapfile2
 			chmod 600 /swapfile2
 			mkswap /swapfile2
