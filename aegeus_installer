@@ -22,8 +22,7 @@ STOPCMD=$(eval echo $COIN_CLI_COMMAND -conf=$CFFULLPATH -datadir=$CONFIGFOLDER s
 PFile=$(eval echo $CONFIGFOLDER/$COIN_NAME.pid)
 
 NODEIP=$(curl -s4 icanhazip.com)
-
-WHITE="\033[0;316m"
+WHITE="\033[0;37m"
 BLUE="\033[0;34m"
 YELLOW="\033[0;33m"
 CYAN="\033[0;36m"
@@ -31,9 +30,48 @@ PURPLE="\033[0;35m"
 RED='\033[0;31m'
 GREEN="\033[0;32m"
 NC='\033[0m'
-MAG='\e[1;35m'
+Off='\E[0m'
+Bold='\E[1m'
+Dim='\E[2m'
+Underline='\E[4m'
+Blink='\E[5m'
+Reverse='\E[7m'
+Strike='\E[9m'
+FgBlack='\E[39m'
+FgRed='\E[31m'
+FgGreen='\E[32m'
+FgYellow='\E[33m'
+FgBlue='\E[34m'
+FgMagenta='\E[35m'
+FgCyan='\E[36m'
+FgWhite='\E[37m'
+BgBlack='\E[40m'
+BgRed='\E[41m'
+BgGreen='\E[42m'
+BgYellow='\E[43m'
+BgBlue='\E[44m'4
+BgMagenta='\E[45m'
+BgCyan='\E[46m'
+BgWhite='\E[47m'
+FgLtBlack='\E[90m'
+FgLtRed='\E[91m'
+FgLtGreen='\E[92m'
+FgLtYellow='\E[93m'
+FgLtBlue='\E[94m'
+FgLtMagenta='\E[95m'
+FgLtCyan='\E[96m'
+FgLtWhite='\E[97m'
+BgLtBlack='\E[100m'
+BgLtRed='\E[101m'
+BgLtGreen='\E[102m'
+BgLtYellow='\E[103m'
+BgLtBlue='\E[104m'
+BgLtMagenta='\E[105m'
+BgLtCyan='\E[106m'
+BgLtWhite='\E[107m'
 
-purgeOldInstallation() {
+
+function purgeOldInstallation() {
     echo -e "${GREEN}Searching and removing old $COIN_NAME files and configurations and making a backup to $HOME/AegeusBackup if they exist ${NC}"
     if [[ -f $(eval echo $CONFIGFOLDER/wallet.dat) ]]; then
     echo -e "Exists, making backup${NC}" 
@@ -83,9 +121,12 @@ if [[ $FREEMEM -lt 3096 ]]; then
 		echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 	else
 		echo -e "Got ${WHITE}$SWAPS${GREEN} swap"
-		if [[ $SWAPS -lt 2048 ]]; then
+		if [[ $SWAPS -lt 2046 ]]; then
 			echo -e "${YELLOW}But thats less than what we want, so increasing swap to correct size to allow compile to succeed"
 			ADDSWAPS=$((2048 - $SWAPS))
+			if [[ $ADDSWAPS -lt 1024 ]]; then 
+				ADDSWAPS=1024
+			fi
 			fallocate -l $ADDSWAPS /swapfile2
 			chmod 600 /swapfile2
 			mkswap /swapfile2
@@ -160,6 +201,20 @@ fi
 }
 
 function configure_systemd() {
+
+DAEMONPID=$(pidof aegeusd)
+
+if [[ -z $DAEMONPID ]]; then
+echo -e "Daemon not currently running, Good!"
+else
+echo -e "Stopping running daemon"
+$COIN_CLI_COMMAND stop > /dev/null 2>&1
+sleep 10
+kill -9 $DAEMONPID > /dev/null 2>&1
+kill -15 $DAEMONPID > /dev/null 2>&1
+fi
+
+
   echo -e "${GREEN} Setting Up Services ${NC}"
 
   cat << EOF > /etc/systemd/system/$COIN_NAME.service
@@ -209,6 +264,12 @@ fi
 
   RPCUSER=$(openssl rand -hex 11)
   RPCPASSWORD=$(openssl rand -hex 20)
+  RPCPORT=$(netstat --listening -n |grep $RPC_PORT)
+if [[ ! -z RPCPORT ]]; then
+echo -e "Something is listening on the RPC Port: $RPC_PORT."
+RPC_PORT=$((eval echo $RPC_PORT + 10))
+echo -e "moving RPC port to $RPC_PORT"
+fi
 
   cat << EOF > $(eval echo $CONFIGFOLDER/$CONFIG_FILE)
 
@@ -234,17 +295,14 @@ fi
     COINKEY=$OLDKEY
 	if [[ ! $OLDKEY ]]; then 
 		echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
-		read -e COINKEY
 		while [[ -z "$COINKEY" ]]; do
-		echo -e " "
-		echo -e "============================================================"
+		echo -e ""
+		echo -e "============================================================="
 		echo -e "${YELLOW}Enter your ${RED}$COIN_NAME Masternode GEN Key${NC}."
-		echo -e "${WHITE} to obtain a key, please start your local wallet, go to"
-		echo -e "Tools -> Debug Console and type ${GREEN}masternode genkey ${WHITE} and paste the result, betwene the quotation marks"
-		echo -e "without including the quotation marks, here: "
-		read -e COINKEY
-
-
+		echo -e "${WHITE}Please start your local wallet and go to"
+		echo -e "Tools -> Debug Console and type ${GREEN}masternode genkey${WHITE}"
+		echo -e "And please copy the string of letters and numbers"
+		read -rp "and enter it here: " COINKEY
 		done
 	fi
 	
@@ -398,7 +456,8 @@ if [ "$?" -gt "0" ];
     echo "apt -y install software-properties-common"
     echo "apt-add-repository -y ppa:bitcoin/bitcoin"
     echo "apt-get update"
-    echo "apt install -y make build-essential libtool software-properties-common autoconf libssl-dev libboost-dev libboost-chrono-dev libboost-filesystem-dev \
+
+echo "apt install -y make build-essential libtool software-properties-common autoconf libssl-dev libboost-dev libboost-chrono-dev libboost-filesystem-dev \
 libboost-program-options-dev libboost-system-dev libboost-test-dev libboost-thread-dev sudo automake git curl libdb4.8-dev \
 bsdmainutils libdb4.8++-dev libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev libdb5.3++ unzip libzmq5"
  exit 1
@@ -408,7 +467,7 @@ fi
 
 function important_information() {
  echo
- echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
+ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.5.0${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${PURPLE}Windows Wallet Guide. https://github.com/Aegeus/master/README.md${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
@@ -425,8 +484,8 @@ fi
  echo -e "${BLUE}================================================================================================================================"
 read -rp "Press any key to continue" pause
  echo -e "Whipped up by "
- logo
- echo -e "${YELLOW} for Aegeus (with some stuff borrowed from RealBitYoda.)" 
+logo
+ echo -e "for Aegeus with some stuff borrowed from RealBiYoda. " 
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${CYAN}Ensure Node is fully SYNCED with BLOCKCHAIN.${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
@@ -444,7 +503,7 @@ read -rp "Press any key to continue" pause
 
 function important_information_wallet() {
  echo
- echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
+ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.5.0${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${PURPLE}You now have a working CLI wallet for ${BLUE}Aegeus${WHITE}!!!"
  echo -e "${BLUE}================================================================================================================================${NC}"
@@ -454,7 +513,7 @@ function important_information_wallet() {
  echo -e "${BLUE}================================================================================================================================"
  echo -e "Whipped up by "
  logo
- echo -e "${YELLOW} for Aegeus (with some stuff borrowed from RealBitYoda.)" 
+ echo -e "${YELLOW} for Aegeus with some stuff borrowed from RealBitYoda." 
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${CYAN}Ensure Node is fully SYNCED with BLOCKCHAIN.${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
@@ -485,18 +544,40 @@ function bootstrap() {
   systemctl start Aegeus.service
 }
 
-function logo() {
+function support() {
+getinfo=$(/usr/local/bin/aegeus-cli getinfo)
+coldlook=$(cat ~/.aegeus/debug.log |grep cold)
+last20=$(tail ~/.aegeus/debug.log -n20)
+mnstatus=$(/usr/local/bin/aegeus-cli masternode status)
 
-echo -e "${RED}▓█████▄  ██▀███   ▄▄▄        ▄████  ▒█████   ███▄    █  ██▓    ▄▄▄      ▓█████▄▓██   ██▓"
-echo -e "${RED}▒██▀ ██▌▓██ ▒ ██▒▒████▄     ██▒ ▀█▒▒██▒  ██▒ ██ ▀█   █ ▓██▒   ▒████▄    ▒██▀ ██▌▒██  ██▒"
-echo -e "${RED}░██   █▌▓██ ░▄█ ▒▒██  ▀█▄  ▒██░▄▄▄░▒██░  ██▒▓██  ▀█ ██▒▒██░   ▒██  ▀█▄  ░██   █▌ ▒██ ██░"
-echo -e "${RED}░▓█▄   ▌▒██▀▀█▄  ░██▄▄▄▄██ ░▓█  ██▓▒██   ██░▓██▒  ▐▌██▒▒██░   ░██▄▄▄▄██ ░▓█▄   ▌ ░ ▐██▓░"
-echo -e "${RED}░▒████▓ ░██▓ ▒██▒ ▓█   ▓██▒░▒▓███▀▒░ ████▓▒░▒██░   ▓██░░██████▒▓█   ▓██▒░▒████▓  ░ ██▒▓░"
-echo -e "${RED} ▒▒▓  ▒ ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░ ░▒   ▒ ░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ░ ▒░▓  ░▒▒   ▓▒█░ ▒▒▓  ▒   ██▒▒▒ "
-echo -e "${RED} ░ ▒  ▒   ░▒ ░ ▒░  ▒   ▒▒ ░  ░   ░   ░ ▒ ▒░ ░ ░░   ░ ▒░░ ░ ▒  ░ ▒   ▒▒ ░ ░ ▒  ▒ ▓██ ░▒░ "
-echo -e "${RED} ░ ░  ░   ░░   ░   ░   ▒   ░ ░   ░ ░ ░ ░ ▒     ░   ░ ░   ░ ░    ░   ▒    ░ ░  ░ ▒ ▒ ░░  "
-echo -e "${RED}   ░       ░           ░  ░      ░     ░ ░           ░     ░  ░     ░  ░   ░    ░ ░     "
-echo -e "${RED} ░                                                                       ░      ░ ░     "
+ echo -e "${BLUE}================================================================================================================================${NC}"
+ echo -e "${FgLtBlue}Aegeus ${Blink}${FgLtWhite}Support${Off}${FgLtWhite}${BgLtBlue} ${FgLtRed}Help ${Off}${FgLtWhite}${BgLtBlue}Screen"
+ echo -e "${BLUE}================================================================================================================================${NC}"
+echo -e  "                                                                                                          "
+echo -e  " Getinfo: $getinfo                                                                                                        "
+echo -e  "                                                                                                          "
+echo -e  " Coldlook:  $coldlook                                                                                               "
+echo -e  "                                                                                                          "
+echo -e  " Last20debug: $last20                                             "
+echo -e  "                                                                                                          "
+echo -e  " MNStatus:  $mnstatus                                                                                                        "
+
+
+}
+
+function logo() {
+ 
+ 
+echo -e "${FgLtRed}${Bold}▓█████▄  ██▀███   ▄▄▄        ▄████  ▒█████   ███▄    █  ██▓    ▄▄▄      ▓█████▄▓██   ██▓"
+echo -e "${FgLtRed}${Bold}▒██▀ ██▌▓██ ▒ ██▒▒████▄     ██▒ ▀█▒▒██▒  ██▒ ██ ▀█   █ ▓██▒   ▒████▄    ▒██▀ ██▌▒██  ██▒"
+echo -e "${FgLtRed}${Bold}░██   █▌▓██ ░▄█ ▒▒██  ▀█▄  ▒██░▄▄▄░▒██░  ██▒▓██  ▀█ ██▒▒██░   ▒██  ▀█▄  ░██   █▌ ▒██ ██░"
+echo -e "${FgLtRed}${Bold}░▓█▄   ▌▒██▀▀█▄  ░██▄▄▄▄██ ░▓█  ██▓▒██   ██░▓██▒  ▐▌██▒▒██░   ░██▄▄▄▄██ ░▓█▄   ▌ ░ ▐██▓░"
+echo -e "${FgLtRed}${Bold}░▒████▓ ░██▓ ▒██▒ ▓█   ▓██▒░▒▓███▀▒░ ████▓▒░▒██░   ▓██░░██████▒▓█   ▓██▒░▒████▓  ░ ██▒▓░"
+echo -e "${FgLtRed}${Bold} ▒▒▓  ▒ ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░ ░▒   ▒ ░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ░ ▒░▓  ░▒▒   ▓▒█░ ▒▒▓  ▒   ██▒▒▒ "
+echo -e "${FgLtRed}${Bold} ░ ▒  ▒   ░▒ ░ ▒░  ▒   ▒▒ ░  ░   ░   ░ ▒ ▒░ ░ ░░   ░ ▒░░ ░ ▒  ░ ▒   ▒▒ ░ ░ ▒  ▒ ▓██ ░▒░ "
+echo -e "${FgLtRed}${Bold} ░ ░  ░   ░░   ░   ░   ▒   ░ ░   ░ ░ ░ ░ ▒     ░   ░ ░   ░ ░    ░   ▒    ░ ░  ░ ▒ ▒ ░░  "
+echo -e "${FgLtRed}${Bold}   ░       ░           ░  ░      ░     ░ ░           ░     ░  ░     ░  ░   ░    ░ ░     "
+echo -e "${FgLtRed}${Bold} ░                                                                       ░      ░ ░     "
 
 }
 
@@ -504,23 +585,26 @@ echo -e "${RED} ░                                                             
 function mainmenu() {
 clear
 options=("${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}" "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}" "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}")
+echo -e "Welcome to the linux installer for ..."
+echo -e "  /${FgLtBlue}${Bold}██████${Off}                                                   "
+echo -e " /${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off}                                                  "
+echo -e "| ${FgLtBlue}${Bold}██${Off}  \ ${FgLtBlue}${Bold}██${Off}  /${FgLtBlue}${Bold}██████${Off}   /${FgLtBlue}${Bold}██████${Off}   /${FgLtBlue}${Bold}██████${Off}  /${FgLtBlue}${Bold}██${Off}   /${FgLtBlue}${Bold}██${Off}  /${FgLtBlue}${Bold}███████${Off}"
+echo -e "| ${FgLtBlue}${Bold}████████${Off} /${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off} /${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off} /${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off} /${FgLtBlue}${Bold}██${Off}_____/"
+echo -e "| ${FgLtBlue}${Bold}██${Off}__  ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}████████${Off}| ${FgLtBlue}${Bold}██${Off}  \ ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}████████${Off}| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off}|  ${FgLtBlue}${Bold}██████${Off} "
+echo -e "| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}██${Off}_____/| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off}| ${FgLtBlue}${Bold}██${Off}_____/| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██ ${Off}\____  ${FgLtBlue}${Bold}██${Off}"
+echo -e "| ${FgLtBlue}${Bold}██${Off}  | ${FgLtBlue}${Bold}██${Off}|  ${FgLtBlue}${Bold}███████${Off}|  ${FgLtBlue}${Bold}███████${Off}|  ${FgLtBlue}${Bold}███████${Off}|  ${FgLtBlue}${Bold}██████${Off}/ /${FgLtBlue}${Bold}███████${Off}/"
+echo -e "|__/  |__/ \_______/ \____  ${FgLtBlue}${Bold}██${Off} \_______/ \______/ |_______/ "
+echo -e "                     /${FgLtBlue}${Bold}██${Off}  \ ${FgLtBlue}${Bold}██${Off}                              "
+echo -e "                    |  ${FgLtBlue}${Bold}██████${Off}/                              "
+echo -e "                     \______/                               "
 
-echo -e "	${GREEN}	Welcome to the linux installer for ...${BLUE}" 
-echo -e "      _/_/                                                      "
-echo -e "   _/    _/    _/_/      _/_/_/    _/_/    _/    _/    _/_/_/   "
-echo -e "  _/_/_/_/  _/_/_/_/  _/    _/  _/_/_/_/  _/    _/  _/_/        "
-echo -e " _/    _/  _/        _/    _/  _/        _/    _/      _/_/     "
-echo -e "_/    _/    _/_/_/    _/_/_/    _/_/_/    _/_/_/  _/_/_/        "
-echo -e "                         _/                                     "
-echo -e "                    _/_/                                        "
-echo -e ""
-echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 2.0.0${NC}"
+echo -e "${RED} ${RED}Dragon${FgLtMagenta}Lady${FgLtGreen} Flexi-compile edit 2.5.0${NC}"
  echo -e "${BLUE}================================================================${NC}"
  echo -e "${WHITE}Main Menu"
  echo -e "${BLUE}===================${WHITE}Here are your options${BLUE}========================${NC}"
- echo -e "${GREEN}1:${NC}${YELLOW} Install full Masternode${NC}"
- echo -e "${GREEN}2:${NC}${YELLOW} Install CLI Staking Wallet Only${NC}"
- echo -e "${GREEN}3:${NC}${YELLOW} Quit and get me out of here${NC}"
+ echo -e "${GREEN}1:${NC}${FgLtYellow} Install full Masternode${NC}"
+ echo -e "${GREEN}2:${NC}${FgLtYellow} Install CLI Staking Wallet Only${NC}"
+ echo -e "${GREEN}3:${NC}${FgLtYellow} Quit and get me out of here${NC}"
  echo -e "${BLUE}================================================================${NC}"
 }
 
@@ -536,16 +620,33 @@ read -rp "Please select your choice: " opt
         "1")
             echo "Lets do a masternode!";
 	doamasternode
-            ;;
+	    echo -e "${Underline}Masternode Setup ${Blink}Complete${Off}${FgLtBlue}$!!!"
+            read -rp "Press any key to return to main menu" pause
+	    ;;
         "2")
             echo "Staking Wallet only Please...";
 	justwalletplz
+	    echo -e "${Underline}Staking Wallet Setup ${Blink}Complete${Off}${FgLtBlue}!!!"
+            read -rp "Press any key to return to main menu" pause
             ;;
         "3")
             echo "Returning you to the shell";
 	shouldloop=false;
 	break
 	exit
+            ;;
+	 "jump")
+	echo -e "Where do you want to jump to?"
+	echo -e "Valid examples are"
+	echo -e "logo"
+	echo -e "important_information"
+	echo -e "configure_systemd"
+	echo -e "preflightchecks"
+	echo -e ""
+	echo -e ""
+        read -rp "Jump to what function?: " jump;
+        $jump
+	read -rp "press any key to continue" pause;
             ;;
         *) echo "invalid option $REPLY";;
     esac
@@ -556,14 +657,18 @@ done
 function doamasternode() {
 
 clear
-purgeOldInstallation
-checks
-prepare_system
-memorycheck
+preflightchecks
 download_node
 bootstrap
 setup_node
 
+}
+
+function preflightchecks() {
+purgeOldInstallation
+checks
+prepare_system
+memorycheck
 }
 
 function setup_node() {
@@ -579,12 +684,10 @@ read -rp "Press any key to continue" pause
 
 
 function justwalletplz() {
-purgeOldInstallation
-checks
-prepare_system
-memorycheck
+preflightchecks
 download_node
 bootstrap
+get_ip
 create_config
 update_config_wallet
 important_information_wallet
@@ -597,4 +700,5 @@ mainmenu2
 
 
 # bash <(curl https://raw.githubusercontent.com/AegeusCoin/AegeusInstaller/master/aegeus_installer)
+
 
