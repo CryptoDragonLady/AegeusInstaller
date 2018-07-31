@@ -254,6 +254,8 @@ EOF
 }
 
 
+
+
 function create_config() {
   echo -e "${GREEN}Generating Config at $CFFULLPATH ${NC}"
 
@@ -262,14 +264,18 @@ echo -e "Making Config Folder"
 mkdir $(eval echo $CONFIGFOLDER)
 fi
 
+$COIND_COMMAND stop 
+killall -9 aegeusd  > /dev/null 2>&1
+killall 15 aegeusd > /dev/null 2>&1
   RPCUSER=$(openssl rand -hex 11)
   RPCPASSWORD=$(openssl rand -hex 20)
   RPCPORT=$(netstat --listening -n |grep $RPC_PORT)
 if [[ ! -z RPCPORT ]]; then
 echo -e "Something is listening on the RPC Port: $RPC_PORT."
-RPC_PORT=$((eval echo $RPC_PORT + 10))
+RPC_PORT=$(eval expr $RPC_PORT + 10) 
 echo -e "moving RPC port to $RPC_PORT"
 fi
+
 
   cat << EOF > $(eval echo $CONFIGFOLDER/$CONFIG_FILE)
 
