@@ -163,6 +163,19 @@ fi
 }
 
 function configure_systemd() {
+
+DAEMONPID=$(pidof aegeusd)
+
+if [[ -z $DAEMONPID ]]; then
+echo -e "Daemon not currently running, Good!"
+else
+echo -e "Stopping running daemon"
+$COIN_CLI_COMMAND stop > /dev/null 2>&1
+sleep 10
+killall -9 $DAEMONPID > /dev/null 2>&1
+fi
+
+
   echo -e "${GREEN} Setting Up Services ${NC}"
 
   cat << EOF > /etc/systemd/system/$COIN_NAME.service
