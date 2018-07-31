@@ -544,7 +544,7 @@ last20=$(tail ~/.aegeus/debug.log -n20)
 mnstatus=$(/usr/local/bin/aegeus-cli masternode status)
 
  echo -e "${BLUE}================================================================================================================================${NC}"
- echo -e "${FgLtBlue}Aegeus ${FgLtWhite}Support ${FgLtRed}Help ${Off}Screen"
+ echo -e "${FgLtBlue}Aegeus ${Blink}${FgLtWhite}Support${Off} ${FgLtRed}Help ${Off}Screen"
  echo -e "${BLUE}================================================================================================================================${NC}"
 echo -e  "                                                                                                          "
 echo -e  "  $getinfo                                                                                                        "
@@ -609,10 +609,14 @@ read -rp "Please select your choice: " opt
         "1")
             echo "Lets do a masternode!";
 	doamasternode
-            ;;
+	    echo -e "${Underline}Masternode Setup ${Blink}Complete${Off}!!!"
+            read -rp "Press any key to return to main menu" pause
+	    ;;
         "2")
             echo "Staking Wallet only Please...";
 	justwalletplz
+	    echo -e "${Underline}Masternode Setup ${Blink}Complete${Off}!!!"
+            read -rp "Press any key to return to main menu" pause
             ;;
         "3")
             echo "Returning you to the shell";
