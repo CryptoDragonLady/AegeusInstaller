@@ -553,7 +553,7 @@ echo -e  "  $coldlook                                                           
 echo -e  "                                                                                                          "
 echo -e  "  $last20                                             "
 echo -e  "                                                                                                          "
-echo -e  "                                                                                                          "
+echo -e  "  $mnstatus                                                                                                        "
 
 
 }
