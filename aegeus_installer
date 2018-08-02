@@ -267,7 +267,7 @@ fi
   RPCPORT=$(netstat --listening -n |grep $RPC_PORT)
 if [[ ! -z RPCPORT ]]; then
 echo -e "Something is listening on the RPC Port: $RPC_PORT."
-RPC_PORT=$((eval echo $RPC_PORT + 10))
+RPC_PORT=$(((eval echo $RPC_PORT) + 10))
 echo -e "moving RPC port to $RPC_PORT"
 fi
 
@@ -653,6 +653,11 @@ read -rp "Please select your choice: " opt
 done
 }
 
+function syncwaitreboot() {
+
+ISSYNCHED=`$COIN_CLI_COMMAND |grep 'IsBlockchainSynced'`|awk '{print $2)'
+
+}
 
 function doamasternode() {
 
@@ -661,7 +666,7 @@ preflightchecks
 download_node
 bootstrap
 setup_node
-
+syncwaitreboot
 }
 
 function preflightchecks() {
