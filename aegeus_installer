@@ -266,8 +266,10 @@ fi
   RPCPASSWORD=$(openssl rand -hex 20)
   RPCPORT=$(netstat --listening -n |grep $RPC_PORT)
 if [[ ! -z RPCPORT ]]; then
+echo -e "Port $RPC_PORT is clear!"
+else
 echo -e "Something is listening on the RPC Port: $RPC_PORT."
-RPC_PORT=$(((eval echo $RPC_PORT) + 10))
+RPC_PORT=$((($RPC_PORT) + 10))
 echo -e "moving RPC port to $RPC_PORT"
 fi
 
