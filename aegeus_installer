@@ -168,7 +168,9 @@ echo -e "                                                           "
 echo -e "${YELLOW}No, seriously, if you're only compiling with one core, on a 5 dollar vultr, expect this to take up to 45 minutes"
 
 
-CORES=$(grep ^cpu\\scores /proc/cpuinfo | wc -l)
+#CORES=$(grep ^cpu\\scores /proc/cpuinfo | wc -l)
+CORES=$(($(grep ^proc /proc/cpuinfo |tail -n1 |awk -F: '{print $2}') + 1))
+
 CF=$(eval expr $CORES - 1)
 if [[ $CF -eq 0 ]]; then
 CF='1'
@@ -547,17 +549,21 @@ function bootstrap() {
 }
 
 function support() {
+memfree=$(free -m |sed -n '2,2p' |awk '{ print $4 }')
+swapspace=$(free -m |tail -n1 |awk '{ print $2 }')
 getinfo=$(/usr/local/bin/aegeus-cli getinfo)
 coldlook=$(cat ~/.aegeus/debug.log |grep cold)
 last20=$(tail ~/.aegeus/debug.log -n20)
 mnstatus=$(/usr/local/bin/aegeus-cli masternode status)
-
+corecount=$(($(grep ^proc /proc/cpuinfo |tail -n1 |awk -F: '{print $2}')+1))
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${FgLtBlue}Aegeus ${Blink}${FgLtWhite}Support${Off}${FgLtWhite}${BgLtBlue} ${FgLtRed}Help ${Off}${FgLtWhite}${BgLtBlue}Screen"
  echo -e "${BLUE}================================================================================================================================${NC}"
 echo -e  "                                                                                                          "
 echo -e  " Getinfo: $getinfo                                                                                                        "
 echo -e  "                                                                                                          "
+echo -e  " Cores: $corecount  		Free Memory: $memfree  		Swap Space: $swapspace  "
+echo -e  " "
 echo -e  " Coldlook:  $coldlook                                                                                               "
 echo -e  "                                                                                                          "
 echo -e  " Last20debug: $last20                                             "
@@ -657,7 +663,7 @@ done
 
 function syncwaitreboot() {
 
-ISSYNCHED=`$COIN_CLI_COMMAND |grep 'IsBlockchainSynced'`|awk '{print $2)'
+#ISSYNCHED=`$COIN_CLI_COMMAND |grep 'IsBlockchainSynced'`|awk '{print $2}'
 
 }
 
@@ -707,5 +713,6 @@ mainmenu2
 
 
 # bash <(curl https://raw.githubusercontent.com/AegeusCoin/AegeusInstaller/master/aegeus_installer)
+
 
 
