@@ -556,11 +556,13 @@ coldlook=$(cat ~/.aegeus/debug.log |grep cold)
 last20=$(tail ~/.aegeus/debug.log -n20)
 mnstatus=$(/usr/local/bin/aegeus-cli masternode status)
 corecount=$(($(grep ^proc /proc/cpuinfo |tail -n1 |awk -F: '{print $2}')+1))
+synchedstatus=$(($COIN_CLI_COMMAND |grep 'IsBlockchainSynced' |awk '{ print $2 }'))
+
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${FgLtBlue}Aegeus ${Blink}${FgLtWhite}Support${Off}${FgLtWhite}${BgLtBlue} ${FgLtRed}Help ${Off}${FgLtWhite}${BgLtBlue}Screen"
  echo -e "${BLUE}================================================================================================================================${NC}"
 echo -e  "                                                                                                          "
-echo -e  " Getinfo: $getinfo                                                                                                        "
+echo -e  " Getinfo: $getinfo            Sync status: $synchedstatus                                                                                            "
 echo -e  "                                                                                                          "
 echo -e  " Cores: $corecount  		Free Memory: $memfree  		Swap Space: $swapspace  "
 echo -e  " "
@@ -663,7 +665,7 @@ done
 
 function syncwaitreboot() {
 
-ISSYNCHED=`$COIN_CLI_COMMAND |grep 'IsBlockchainSynced'`|awk '{ print $2 }'
+ISSYNCHED=$(($COIN_CLI_COMMAND |grep 'IsBlockchainSynced' |awk '{ print $2 }'))
 
 }
 
