@@ -242,7 +242,10 @@ WantedBy=multi-user.target
 EOF
 
   systemctl daemon-reload
-  sleep 3
+}
+
+function startsystemd() {
+
   systemctl start $COIN_NAME.service
   systemctl enable $COIN_NAME.service >/dev/null 2>&1
 
@@ -254,7 +257,6 @@ EOF
     exit 1
   fi
 }
-
 
 function create_config() {
   echo -e "${GREEN}Generating Config at $CFFULLPATH ${NC}"
@@ -317,21 +319,11 @@ function update_config() {
   echo -e "${GREEN}Adding Seeds to config ${NC}"
   EXTERNALIP=$(eval echo $NODEIP:$COIN_PORT)
   cat << EOF >> $(eval echo $CFFULLPATH)
-logintimestamps=1
+logtimestamps=1
 maxconnections=128
 masternode=1
 externalip=$EXTERNALIP
 masternodeprivkey=$COINKEY
-addnode=144.202.99.24
-addnode=140.82.50.184
-addnode=144.202.97.44
-addnode=149.28.200.244
-addnode=144.202.96.12
-addnode=104.207.149.137
-addnode=149.28.205.234
-addnode=144.202.97.176
-addnode=149.28.193.111
-addnode=149.28.193.113
 
 #ADDNODES
 
@@ -356,16 +348,6 @@ maxconnections=25
 masternode=0
 staking=1
 externalip=$EXTERNALIP
-addnode=144.202.99.24
-addnode=140.82.50.184
-addnode=144.202.97.44
-addnode=149.28.200.244
-addnode=144.202.96.12
-addnode=104.207.149.137
-addnode=149.28.205.234
-addnode=144.202.97.176
-addnode=149.28.193.111
-addnode=149.28.193.113
 
 #ADDNODES
 
@@ -537,7 +519,6 @@ function bootstrap() {
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${RED}Bootstrapping Blockchain with IPFS hash ${WHITE}$COIN_BOOTSTRAP_HASH"
  echo -e "${BLUE}================================================================================================================================${NC}"
-  systemctl stop Aegeus.service
   cd $CONFIGFOLDER
   rm -rf blocks chainstate sporks banlist.dat peers.dat 2>/dev/null
   echo -e "${CYAN}Downloading Bootstrap...${NC}"
@@ -545,7 +526,6 @@ function bootstrap() {
   tar -zxvf bootstrap.tar.gz >/dev/null 2>&1
   rm bootstrap.tar.gz
   cd ~
-  systemctl start Aegeus.service
 }
 
 function support() {
@@ -556,11 +536,13 @@ coldlook=$(cat ~/.aegeus/debug.log |grep cold)
 last20=$(tail ~/.aegeus/debug.log -n20)
 mnstatus=$(/usr/local/bin/aegeus-cli masternode status)
 corecount=$(($(grep ^proc /proc/cpuinfo |tail -n1 |awk -F: '{print $2}')+1))
+synchedstatus=$(($COIN_CLI_COMMAND |grep 'IsBlockchainSynced' |awk '{ print $2 }'))
+
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${FgLtBlue}Aegeus ${Blink}${FgLtWhite}Support${Off}${FgLtWhite}${BgLtBlue} ${FgLtRed}Help ${Off}${FgLtWhite}${BgLtBlue}Screen"
  echo -e "${BLUE}================================================================================================================================${NC}"
 echo -e  "                                                                                                          "
-echo -e  " Getinfo: $getinfo                                                                                                        "
+echo -e  " Getinfo: $getinfo            Sync status: $synchedstatus                                                                                            "
 echo -e  "                                                                                                          "
 echo -e  " Cores: $corecount  		Free Memory: $memfree  		Swap Space: $swapspace  "
 echo -e  " "
@@ -663,7 +645,7 @@ done
 
 function syncwaitreboot() {
 
-ISSYNCHED=`$COIN_CLI_COMMAND |grep 'IsBlockchainSynced'`|awk '{ print $2 }'
+ISSYNCHED=$(($COIN_CLI_COMMAND |grep 'IsBlockchainSynced' |awk '{ print $2 }'))
 
 }
 
@@ -672,8 +654,10 @@ function doamasternode() {
 clear
 preflightchecks
 download_node
+configure_systemd
 bootstrap
 setup_node
+startsystemd
 syncwaitreboot
 }
 
@@ -691,7 +675,6 @@ function setup_node() {
   update_config
   enable_firewall
   important_information
-  configure_systemd
 read -rp "Press any key to continue" pause
 }
 
