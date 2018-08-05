@@ -1,5 +1,6 @@
 #!/bin/bash
 
+SCRIPTVER=3.0.2
 CONFIG_FILE='aegeus.conf'
 CONFIGFOLDER=$(eval echo $HOME/.aegeus)
 CFFULLPATH=$(eval echo $CONFIGFOLDER/$CONFIG_FILE)
@@ -453,7 +454,7 @@ fi
 
 function important_information() {
  echo
- echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 3.0.0${NC}"
+ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit $SCRIPTVER${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${PURPLE}Windows Wallet Guide. https://github.com/Aegeus/master/README.md${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
@@ -489,7 +490,7 @@ logo
 
 function important_information_wallet() {
  echo
- echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit 3.0.0${NC}"
+ echo -e "${RED} ${RED}Dragon${PURPLE}Lady Flexi-compile edit $SCRIPTVER${NC}"
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "${PURPLE}You now have a working CLI wallet for ${BLUE}Aegeus${WHITE}!!!"
  echo -e "${BLUE}================================================================================================================================${NC}"
@@ -588,7 +589,7 @@ echo -e "                     /${FgLtBlue}${Bold}██${Off}  \ ${FgLtBlue}${Bo
 echo -e "                    |  ${FgLtBlue}${Bold}██████${Off}/                              "
 echo -e "                     \______/                               "
 
-echo -e "${RED} ${RED}Dragon${FgLtMagenta}Lady${FgLtGreen} Flexi-compile edit 3.0.0${NC}"
+echo -e "${RED} ${RED}Dragon${FgLtMagenta}Lady${FgLtGreen} Flexi-compile edit $SCRIPTVER${NC}"
  echo -e "${BLUE}================================================================${NC}"
  echo -e "${WHITE}Main Menu"
  echo -e "${BLUE}===================${WHITE}Here are your options${BLUE}========================${NC}"
