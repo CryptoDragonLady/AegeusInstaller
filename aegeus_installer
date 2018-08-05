@@ -319,23 +319,11 @@ function update_config() {
   echo -e "${GREEN}Adding Seeds to config ${NC}"
   EXTERNALIP=$(eval echo $NODEIP:$COIN_PORT)
   cat << EOF >> $(eval echo $CFFULLPATH)
-logintimestamps=1
+logtimestamps=1
 maxconnections=128
 masternode=1
 externalip=$EXTERNALIP
 masternodeprivkey=$COINKEY
-addnode=144.202.99.24
-addnode=140.82.50.184
-addnode=144.202.97.44
-addnode=149.28.200.244
-addnode=144.202.96.12
-addnode=104.207.149.137
-addnode=149.28.205.234
-addnode=144.202.97.176
-addnode=149.28.193.111
-addnode=149.28.193.113
-
-#ADDNODES
 
 EOF
 
