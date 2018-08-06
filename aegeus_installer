@@ -325,9 +325,6 @@ maxconnections=128
 masternode=1
 externalip=$EXTERNALIP
 masternodeprivkey=$COINKEY
-
-#ADDNODES
-
 EOF
 
 if [ -d $(eval echo $COIN_BACKUP) ]; then 
