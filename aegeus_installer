@@ -347,8 +347,6 @@ masternode=0
 staking=1
 externalip=$EXTERNALIP
 
-#ADDNODES
-
 EOF
 
 if [ -d $(eval echo $COIN_BACKUP) ]; then 
