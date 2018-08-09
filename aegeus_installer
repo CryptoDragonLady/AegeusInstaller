@@ -646,7 +646,7 @@ done
 
 function syncwaitreboot() {
 
-ISSYNCHED=$(($COIN_CLI_COMMAND |grep 'IsBlockchainSynced' |awk '{ print $2 }'))
+ISSYNCHED=$(($COIN_CLI_COMMAND |grep 'IsBlockchainSynced' |awk ' { print $2 } '))
 
 }
 
